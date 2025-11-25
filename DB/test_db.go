@@ -124,6 +124,13 @@ func printVals(rows *sql.Rows) {
 
 }
 
+func deleteValDb(db *sql.DB, id int) error {
+
+	delCmd := fmt.Sprintf(`DELETE FROM transactions WHERE id = %d`, id)
+	_, err := db.Exec(delCmd)
+	return err
+
+}
 func main() {
 
 	db, err := connectDb()
@@ -146,15 +153,18 @@ func main() {
 
 	// }
 
-	currMonth, Year := time.Now().Month(), time.Now().Year()
-	rows, err := getValDb(db, currMonth, Year)
+	// currMonth, Year := time.Now().Month(), time.Now().Year()
+	// rows, err := getValDb(db, currMonth, Year)
 
-	if err != nil {
+	// if err != nil {
 
-		log.Fatalf("Error while fetching rows : %v ", err)
+	// 	log.Fatalf("Error while fetching rows : %v ", err)
 
+	// }
+	// defer rows.Close()
+
+	if err = deleteValDb(db, 8); err != nil {
+		log.Fatal(err)
 	}
-	defer rows.Close()
 
-	printVals(rows)
 }
