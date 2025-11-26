@@ -1,4 +1,4 @@
-package db
+package Db
 
 import (
 	"database/sql"
@@ -10,7 +10,7 @@ import (
 	_ "modernc.org/sqlite" // Import SQLite3 driver
 )
 
-func createDb(db *sql.DB) error {
+func CreateDb(db *sql.DB) error {
 	// Function to create a table called transactions
 	// Expects Database connection to be provided as input and returns any err if occured
 	// Expected usecase : first run
@@ -29,12 +29,14 @@ func createDb(db *sql.DB) error {
 
 }
 
-func insertDb(db *sql.DB, amt float64, mode string, flow string) error {
+func InsertDb(db *sql.DB, m Model.Transaction) error {
 
 	// Function to insert value onto the database
 	// Expects database, (Amount , Mode of payment, Expense/Income) -> Should be parsed from API
 	// Should return error if any else Adds value to database
-	model := Model.Transaction
+	amt := m.Amt
+	flow := m.Flow
+	mode := m.Mode
 	currTime := time.Now()
 	formattedTime := currTime.Format("2006-01-02 15:04:04")
 	fmt.Printf("Current Time is %v\n", formattedTime)
@@ -44,7 +46,7 @@ func insertDb(db *sql.DB, amt float64, mode string, flow string) error {
 	return err
 }
 
-func getValDb(db *sql.DB, month time.Month, year int) (*sql.Rows, error) {
+func GetValDb(db *sql.DB, month time.Month, year int) (*sql.Rows, error) {
 
 	// Function to fetch values from the database
 	// Designed to get values based on the month and year
@@ -93,14 +95,14 @@ func getValDb(db *sql.DB, month time.Month, year int) (*sql.Rows, error) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%v | %v | %v | %v | %v | %v | %v |\n", id, time, amt, flow, mode)
+		fmt.Printf("%v | %v | %v | %v | %v |\n", id, time, amt, flow, mode)
 
 	}
 	return val, err
 
 }
 
-func printVals(rows *sql.Rows) {
+func PrintVals(rows *sql.Rows) {
 
 	//Helper function to print the rows gathered from getValDb()
 	//Used while debugging
@@ -116,12 +118,12 @@ func printVals(rows *sql.Rows) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%v |\n", id, time, amt, flow, mode)
+		fmt.Printf("%v |%v |%v |%v |%v |\n", id, time, amt, flow, mode)
 	}
 
 }
 
-func deleteValDb(db *sql.DB, id int) error {
+func DeleteValDb(db *sql.DB, id int) error {
 
 	// Function to delete values from the database
 	// Expects the database connection (db) and id to delete from

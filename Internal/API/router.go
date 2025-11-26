@@ -1,4 +1,4 @@
-package api
+package Api
 
 import (
 	"net/http"
@@ -6,13 +6,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func (api *API) routes() http.Handler {
+func (api *API) Routes() http.Handler {
 
 	mux := mux.NewRouter()
 
-	mux.HandleFunc("/trans/get/{month,year}", api.getTrans).Methods("GET")
-	mux.HandleFunc("/trans/add", api.addTrans).Methods("POST")
-	mux.HandleFunc("/trans/del", api.delTrans).Methods("DELETE")
+	//mux.HandleFunc("/trans/get/{month,year}", api.Handle_insertDB).Methods("GET")
+	mux.HandleFunc("/trans/add", api.Handle_insertDB).Methods("POST")
+	//mux.HandleFunc("/trans/del", api.delTrans).Methods("DELETE")
 
 	return mux
 }

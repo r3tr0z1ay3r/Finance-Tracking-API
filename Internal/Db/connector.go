@@ -1,4 +1,4 @@
-package db
+package Db
 
 import (
 	"database/sql"
@@ -7,7 +7,7 @@ import (
 	_ "modernc.org/sqlite" // Import SQLite3 driver
 )
 
-func connectDb(db_path string) (*sql.DB, error) {
+func ConnectDb(db_path string) (*sql.DB, error) {
 
 	// Function to intiate connection with the database
 	// Expects path to database as db_path and returns database connection and error if any

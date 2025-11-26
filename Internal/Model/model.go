@@ -32,8 +32,8 @@ func (ct customTime) MarshalJSON() ([]byte, error) {
 }
 
 type Transaction struct {
-	time customTime `json:"time"`
-	amt  float64    `json:"user"`
-	flow string     `json:"flow"`
-	mode string     `json:"mode"`
+	Time customTime `json:"time"`
+	Amt  float64    `json:"amt"`
+	Flow string     `json:"flow"`
+	Mode string     `json:"mode"`
 }
