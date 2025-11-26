@@ -39,37 +39,23 @@ func InsertDb(db *sql.DB, m Model.Transaction) error {
 	mode := m.Mode
 	currTime := time.Now()
 	formattedTime := currTime.Format("2006-01-02 15:04:04")
+	m.Time, _ = time.Parse("2006-01-02 15:04:04", formattedTime)
 	fmt.Printf("Current Time is %v\n", formattedTime)
-
+	fmt.Printf("The values from the api are %v,%v,%v\n", amt, flow, mode)
 	insertCmd := `INSERT INTO transactions(time, amt, flow, mode) VALUES (?, ?, ?, ?)`
 	_, err := db.Exec(insertCmd, formattedTime, amt, flow, mode)
 	return err
 }
 
-func GetValDb(db *sql.DB, month time.Month, year int) (*sql.Rows, error) {
+func GetValDb(db *sql.DB, month int, year int) ([]Model.Transaction, error) {
 
 	// Function to fetch values from the database
 	// Designed to get values based on the month and year
 	// Designed into months and years to get monthly transactions on a page
 
 	//Creating a map to covert month in english to integer {String(Month) -> Int(month)}
-	months := map[time.Month]int{
-		time.January:   1,
-		time.February:  2,
-		time.March:     3,
-		time.April:     4,
-		time.May:       5,
-		time.June:      6,
-		time.July:      7,
-		time.August:    8,
-		time.September: 9,
-		time.October:   10,
-		time.November:  11,
-		time.December:  12,
-	}
 
-	Month := months[month]
-	yr_mth := fmt.Sprintf("%v-%v", year, Month)
+	yr_mth := fmt.Sprintf("%v-%v", year, month)
 	cmd := fmt.Sprintf(`
 		SELECT *
 		FROM transactions
@@ -83,22 +69,22 @@ func GetValDb(db *sql.DB, month time.Month, year int) (*sql.Rows, error) {
 	}
 	defer val.Close()
 
+	var Rows []Model.Transaction
+
 	for val.Next() {
 
-		var id int
-		var time time.Time
-		var amt float64
-		var flow string
-		var mode string
+		var t Model.Transaction
 
-		err := val.Scan(&id, &time, &amt, &flow, &mode)
+		err := val.Scan(&t.ID, &t.Time, &t.Amt, &t.Flow, &t.Mode)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%v | %v | %v | %v | %v |\n", id, time, amt, flow, mode)
+		Rows = append(Rows, t)
 
 	}
-	return val, err
+
+	fmt.Printf("%v\n", Rows)
+	return Rows, nil
 
 }
 

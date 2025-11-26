@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+	"strconv"
 
+	"github.com/gorilla/mux"
 	"github.com/r3tr0z1ay3r/Finance-Tracking-API.git/Internal/Db"
 	"github.com/r3tr0z1ay3r/Finance-Tracking-API.git/Internal/Model"
 )
@@ -36,6 +38,30 @@ func (api *API) Handle_insertDB(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 	}
 
+	json.NewEncoder(w).Encode(trans)
+
+}
+
+func (api *API) Handle_getDB(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	monthStr := vars["month"]
+	yearStr := vars["year"]
+	month, err := strconv.Atoi(monthStr)
+	if err != nil {
+		http.Error(w, "Invalid Month", http.StatusBadRequest)
+	}
+	year, err := strconv.Atoi(yearStr)
+	if err != nil {
+		http.Error(w, "Invalid year", http.StatusBadRequest)
+	}
+	trans, err := Db.GetValDb(api.DB, month, year)
+	if err != nil {
+
+		http.Error(w, err.Error(), http.StatusNotFound)
+
+	}
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(trans)
 
 }
