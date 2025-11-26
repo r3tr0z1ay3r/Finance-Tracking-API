@@ -9,25 +9,11 @@ import (
 	_ "modernc.org/sqlite" // Import SQLite3 driver
 )
 
-func connectDb() (*sql.DB, error) {
-
-	db, err := sql.Open("sqlite", "./test.db")
-	if err != nil {
-
-		return nil, err
-
-	}
-
-	if err = db.Ping(); err != nil {
-
-		return nil, err
-
-	}
-	return db, err
-
-}
-
 func createDb(db *sql.DB) error {
+
+	// Function to create a table called transactions
+	// Expects Database connection to be provided as input and returns any err if occured
+	// Expected usecase : first run
 
 	//Create a table
 	createTable := `CREATE TABLE IF NOT EXISTS transactions (
@@ -45,6 +31,10 @@ func createDb(db *sql.DB) error {
 
 func insertDb(db *sql.DB, amt float64, mode string, flow string) error {
 
+	// Function to insert value onto the database
+	// Expects database, (Amount , Mode of payment, Expense/Income) -> Should be parsed from API
+	// Should return error if any else Adds value to database
+
 	currTime := time.Now()
 	formattedTime := currTime.Format("2006-01-02 15:04:04")
 	fmt.Printf("Current Time is %v\n", formattedTime)
@@ -55,6 +45,11 @@ func insertDb(db *sql.DB, amt float64, mode string, flow string) error {
 }
 
 func getValDb(db *sql.DB, month time.Month, year int) (*sql.Rows, error) {
+
+	// Function to fetch values from the database
+	// Designed to get values based on the month and year
+	// Designed into months and years to get monthly transactions on a page
+
 	//Creating a map to covert month in english to integer {String(Month) -> Int(month)}
 	months := map[time.Month]int{
 		time.January:   1,
@@ -107,6 +102,8 @@ func getValDb(db *sql.DB, month time.Month, year int) (*sql.Rows, error) {
 
 func printVals(rows *sql.Rows) {
 
+	//Helper function to print the rows gathered from getValDb()
+	//Used while debugging
 	for rows.Next() {
 
 		var id int
@@ -126,45 +123,13 @@ func printVals(rows *sql.Rows) {
 
 func deleteValDb(db *sql.DB, id int) error {
 
+	// Function to delete values from the database
+	// Expects the database connection (db) and id to delete from
+	// Planning to delete val from database based on selection on the front-end,
+	// Front-End should only show necessary info, ID will be abstracted but used here
+
 	delCmd := fmt.Sprintf(`DELETE FROM transactions WHERE id = %d`, id)
 	_, err := db.Exec(delCmd)
 	return err
-
-}
-func main() {
-
-	db, err := connectDb()
-	if err != nil {
-
-		log.Fatalf("Error in connecting to DB :%v\n", err)
-
-	}
-	defer db.Close()
-
-	if err = createDb(db); err != nil {
-
-		log.Fatalf("Error while creating db: %v\n", err)
-
-	}
-
-	// if err = insertDb(db, 40, "UPI", "Expense"); err != nil {
-
-	// 	log.Fatalf("Error in inserting value to db : %v\n", err)
-
-	// }
-
-	// currMonth, Year := time.Now().Month(), time.Now().Year()
-	// rows, err := getValDb(db, currMonth, Year)
-
-	// if err != nil {
-
-	// 	log.Fatalf("Error while fetching rows : %v ", err)
-
-	// }
-	// defer rows.Close()
-
-	if err = deleteValDb(db, 8); err != nil {
-		log.Fatal(err)
-	}
 
 }
