@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"database/sql"
@@ -6,11 +6,11 @@ import (
 	"log"
 	"time"
 
+	"github.com/r3tr0z1ay3r/Finance-Tracking-API.git/Internal/Model"
 	_ "modernc.org/sqlite" // Import SQLite3 driver
 )
 
 func createDb(db *sql.DB) error {
-
 	// Function to create a table called transactions
 	// Expects Database connection to be provided as input and returns any err if occured
 	// Expected usecase : first run
@@ -34,7 +34,7 @@ func insertDb(db *sql.DB, amt float64, mode string, flow string) error {
 	// Function to insert value onto the database
 	// Expects database, (Amount , Mode of payment, Expense/Income) -> Should be parsed from API
 	// Should return error if any else Adds value to database
-
+	model := Model.Transaction
 	currTime := time.Now()
 	formattedTime := currTime.Format("2006-01-02 15:04:04")
 	fmt.Printf("Current Time is %v\n", formattedTime)
