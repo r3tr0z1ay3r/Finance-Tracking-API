@@ -12,7 +12,7 @@ func (api *API) Routes() http.Handler {
 
 	mux.HandleFunc("/trans/get/{month}/{year}", api.Handle_getDB).Methods("GET")
 	mux.HandleFunc("/trans/add", api.Handle_insertDB).Methods("POST")
-	//mux.HandleFunc("/trans/del", api.delTrans).Methods("DELETE")
+	mux.HandleFunc("/trans/del/{id}", api.Handle_delDB).Methods("DELETE")
 
 	return mux
 }

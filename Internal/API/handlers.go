@@ -65,3 +65,24 @@ func (api *API) Handle_getDB(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(trans)
 
 }
+
+func (api *API) Handle_delDB(w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	idStr := vars["id"]
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+
+		http.Error(w, "Invalid ID", http.StatusBadRequest)
+
+	}
+
+	err = Db.DeleteValDb(api.DB, id)
+
+	if err != nil {
+
+		http.Error(w, "Error while attempting to delete", http.StatusExpectationFailed)
+
+	}
+
+}
