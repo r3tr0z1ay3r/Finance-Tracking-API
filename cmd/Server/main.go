@@ -10,7 +10,7 @@ import (
 
 func main() {
 
-	dbConn, err := Db.ConnectDb("./test.db")
+	dbConn, err := Db.ConnectDb("Internal/Db/test.db")
 	if err != nil {
 		log.Fatalf("Error occured while intializing DB Connection : %v\n", err)
 	}
