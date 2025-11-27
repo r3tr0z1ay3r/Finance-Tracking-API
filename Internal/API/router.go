@@ -10,9 +10,12 @@ func (api *API) Routes() http.Handler {
 
 	mux := mux.NewRouter()
 
-	mux.HandleFunc("/trans/get/{month}/{year}", api.Handle_getDB).Methods("GET")
-	mux.HandleFunc("/trans/add", api.Handle_insertDB).Methods("POST")
-	mux.HandleFunc("/trans/del/{id}", api.Handle_delDB).Methods("DELETE")
+	protected := mux.PathPrefix("/").Subrouter()
+	protected.Use(AuthMiddleWare)
+
+	protected.HandleFunc("/trans/get/{month}/{year}", api.Handle_getDB).Methods("GET")
+	protected.HandleFunc("/trans/add", api.Handle_insertDB).Methods("POST")
+	protected.HandleFunc("/trans/del/{id}", api.Handle_delDB).Methods("DELETE")
 
 	return mux
 }
