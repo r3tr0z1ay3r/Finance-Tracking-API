@@ -57,4 +57,4 @@ This document details the implementation of the Finance Tracking GUI application
     - `PyQt5`: GUI framework.
     - `requests`: HTTP client for API calls.
     - `python-dotenv`: For loading environment variables.
-- **`config/.env`**: Stores the API Key (located in sibling directory).
+- **`config/.env`**: Stores the API Key .
