@@ -11,6 +11,15 @@ import (
 	_ "modernc.org/sqlite" // Import SQLite3 driver
 )
 
+type model struct {
+	ID   int       `json:"id"`
+	Time time.Time `json:"time"`
+	Amt  float64   `json:"amt"`
+	Flow string    `json:"flow"`
+	Mode string    `json:"mode"`
+	User string    `json:"usr_name"`
+}
+
 func connectDb() (*sql.DB, error) {
 
 	db, err := sql.Open("sqlite", "./test.db")
@@ -31,54 +40,65 @@ func connectDb() (*sql.DB, error) {
 
 func createDb(db *sql.DB) error {
 
+	// Function to create a table called transactions
+	// Expects Database connection to be provided as input and returns any err if occured
+	// Expected usecase : first run
+
 	//Create a table
-	createTable := `CREATE TABLE IF NOT EXISTS transactions (
+	createTableTrans := `CREATE TABLE IF NOT EXISTS transactions (
 						id	INTEGER PRIMARY KEY AUTOINCREMENT,
 						time DATETIME NOT NULL,
 						amt REAL NOT NULL,
 						flow TEXT NOT NULL,
-						mode TEXT 
+						mode TEXT,
+						user TEXT
 	);`
 
-	_, err := db.Exec(createTable)
-	return err
+	createTableUser := `CREATE TABLE IF NOT EXISTS users (
+						id INTEGER PRIMARY KEY AUTOINCREMENT,
+						name TEXT NOT NULL
+						pass VARCHAR 
+	);`
+
+	_, err := db.Exec(createTableTrans)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(createTableUser)
+	if err != nil {
+		return err
+	}
+
+	return nil
 
 }
 
 func insertDb(db *sql.DB, amt float64, mode string, flow string) error {
 
+	// Function to insert value onto the database
+	// Expects database, (Amount , Mode of payment, Expense/Income) -> Should be parsed from API
+	// Should return error if any else Adds value to database
 	currTime := time.Now()
 	formattedTime := currTime.Format("2006-01-02 15:04:04")
+	//time, _ := time.Parse("2006-01-02 15:04:04", formattedTime)
 	fmt.Printf("Current Time is %v\n", formattedTime)
-
-	insertCmd := `INSERT INTO transactions(time, amt, flow, mode) VALUES (?, ?, ?, ?)`
+	fmt.Printf("The values from the api are %v,%v,%v\n", amt, flow, mode)
+	insertCmd := `INSERT INTO transactions(time, amt, flow, mode, user) VALUES (?, ?, ?, ?, ?)`
 	_, err := db.Exec(insertCmd, formattedTime, amt, flow, mode)
 	return err
 }
 
-func getValDb(db *sql.DB, month time.Month, year int) (*sql.Rows, error) {
-	//Creating a map to covert month in english to integer {String(Month) -> Int(month)}
-	months := map[time.Month]int{
-		time.January:   1,
-		time.February:  2,
-		time.March:     3,
-		time.April:     4,
-		time.May:       5,
-		time.June:      6,
-		time.July:      7,
-		time.August:    8,
-		time.September: 9,
-		time.October:   10,
-		time.November:  11,
-		time.December:  12,
-	}
+func getValDb(db *sql.DB, month time.Month, year int, user string) {
+	// Function to fetch values from the database
+	// Designed to get values based on the month and year
+	// Designed into months and years to get monthly transactions on a page
 
-	Month := months[month]
-	yr_mth := fmt.Sprintf("%v-%v", year, Month)
+	yr_mth := fmt.Sprintf("%v-%v", year, month)
 	cmd := fmt.Sprintf(`
 		SELECT *
 		FROM transactions
-		WHERE strftime('%%Y-%%m',time) = '%v'`, yr_mth)
+		WHERE strftime('%%Y-%%m',time) = '%v' AND user = %v`, yr_mth, user)
 
 	val, err := db.Query(cmd)
 	if err != nil {
@@ -88,22 +108,19 @@ func getValDb(db *sql.DB, month time.Month, year int) (*sql.Rows, error) {
 	}
 	defer val.Close()
 
+	var Rows []model
+
 	for val.Next() {
-
-		var id int
-		var time time.Time
-		var amt float64
-		var flow string
-		var mode string
-
-		err := val.Scan(&id, &time, &amt, &flow, &mode)
+		var t model
+		err := val.Scan(t.ID, &t.Time, &t.Amt, &t.Flow, &t.Mode, &t.User)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%v | %v | %v | %v | %v | %v | %v |\n", id, time, amt, flow, mode)
+		Rows = append(Rows, t)
 
 	}
-	return val, err
+
+	fmt.Printf("%v\n", Rows)
 
 }
 
@@ -148,22 +165,6 @@ func main() {
 		log.Fatalf("Error while creating db: %v\n", err)
 
 	}
-
-	// if err = insertDb(db, 40, "UPI", "Expense"); err != nil {
-
-	// 	log.Fatalf("Error in inserting value to db : %v\n", err)
-
-	// }
-
-	// currMonth, Year := time.Now().Month(), time.Now().Year()
-	// rows, err := getValDb(db, currMonth, Year)
-
-	// if err != nil {
-
-	// 	log.Fatalf("Error while fetching rows : %v ", err)
-
-	// }
-	// defer rows.Close()
 
 	if err = deleteValDb(db, 8); err != nil {
 		log.Fatal(err)

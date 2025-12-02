@@ -16,16 +16,32 @@ func CreateDb(db *sql.DB) error {
 	// Expected usecase : first run
 
 	//Create a table
-	createTable := `CREATE TABLE IF NOT EXISTS transactions (
+	createTableTrans := `CREATE TABLE IF NOT EXISTS transactions (
 						id	INTEGER PRIMARY KEY AUTOINCREMENT,
 						time DATETIME NOT NULL,
 						amt REAL NOT NULL,
 						flow TEXT NOT NULL,
-						mode TEXT 
+						mode TEXT,
+						user TEXT
 	);`
 
-	_, err := db.Exec(createTable)
-	return err
+	createTableUser := `CREATE TABLE IF NOT EXISTS users (
+						id INTEGER PRIMARY KEY AUTOINCREMENT,
+						name TEXT NOT NULL
+						pass VARCHAR 
+	);`
+
+	_, err := db.Exec(createTableTrans)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(createTableUser)
+	if err != nil {
+		return err
+	}
+
+	return nil
 
 }
 
@@ -42,12 +58,12 @@ func InsertDb(db *sql.DB, m Model.Transaction) error {
 	m.Time, _ = time.Parse("2006-01-02 15:04:04", formattedTime)
 	fmt.Printf("Current Time is %v\n", formattedTime)
 	fmt.Printf("The values from the api are %v,%v,%v\n", amt, flow, mode)
-	insertCmd := `INSERT INTO transactions(time, amt, flow, mode) VALUES (?, ?, ?, ?)`
+	insertCmd := `INSERT INTO transactions(time, amt, flow, mode, user) VALUES (?, ?, ?, ?, ?)`
 	_, err := db.Exec(insertCmd, formattedTime, amt, flow, mode)
 	return err
 }
 
-func GetValDb(db *sql.DB, month int, year int) ([]Model.Transaction, error) {
+func GetValDb(db *sql.DB, month int, year int, user string) ([]Model.Transaction, error) {
 
 	// Function to fetch values from the database
 	// Designed to get values based on the month and year
@@ -59,7 +75,7 @@ func GetValDb(db *sql.DB, month int, year int) ([]Model.Transaction, error) {
 	cmd := fmt.Sprintf(`
 		SELECT *
 		FROM transactions
-		WHERE strftime('%%Y-%%m',time) = '%v'`, yr_mth)
+		WHERE strftime('%%Y-%%m',time) = '%v' AND user = %v`, yr_mth, user)
 
 	val, err := db.Query(cmd)
 	if err != nil {
