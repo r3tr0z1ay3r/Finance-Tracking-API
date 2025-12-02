@@ -56,7 +56,7 @@ func createDb(db *sql.DB) error {
 
 	createTableUser := `CREATE TABLE IF NOT EXISTS users (
 						id INTEGER PRIMARY KEY AUTOINCREMENT,
-						name TEXT NOT NULL
+						name TEXT NOT NULL,
 						pass VARCHAR 
 	);`
 
@@ -74,7 +74,7 @@ func createDb(db *sql.DB) error {
 
 }
 
-func insertDb(db *sql.DB, amt float64, mode string, flow string) error {
+func insertDb(db *sql.DB, amt float64, mode string, flow string, user string) error {
 
 	// Function to insert value onto the database
 	// Expects database, (Amount , Mode of payment, Expense/Income) -> Should be parsed from API
@@ -83,13 +83,13 @@ func insertDb(db *sql.DB, amt float64, mode string, flow string) error {
 	formattedTime := currTime.Format("2006-01-02 15:04:04")
 	//time, _ := time.Parse("2006-01-02 15:04:04", formattedTime)
 	fmt.Printf("Current Time is %v\n", formattedTime)
-	fmt.Printf("The values from the api are %v,%v,%v\n", amt, flow, mode)
+	fmt.Printf("The values from the api are %v,%v,%v, %v\n", amt, flow, mode, user)
 	insertCmd := `INSERT INTO transactions(time, amt, flow, mode, user) VALUES (?, ?, ?, ?, ?)`
-	_, err := db.Exec(insertCmd, formattedTime, amt, flow, mode)
+	_, err := db.Exec(insertCmd, formattedTime, amt, flow, mode, user)
 	return err
 }
 
-func getValDb(db *sql.DB, month time.Month, year int, user string) {
+func getValDb(db *sql.DB, month int, year int, user string) {
 	// Function to fetch values from the database
 	// Designed to get values based on the month and year
 	// Designed into months and years to get monthly transactions on a page
@@ -98,7 +98,7 @@ func getValDb(db *sql.DB, month time.Month, year int, user string) {
 	cmd := fmt.Sprintf(`
 		SELECT *
 		FROM transactions
-		WHERE strftime('%%Y-%%m',time) = '%v' AND user = %v`, yr_mth, user)
+		WHERE user = '%v' AND strftime('%%Y-%%m',time) = '%v'`, user, yr_mth)
 
 	val, err := db.Query(cmd)
 	if err != nil {
@@ -112,7 +112,7 @@ func getValDb(db *sql.DB, month time.Month, year int, user string) {
 
 	for val.Next() {
 		var t model
-		err := val.Scan(t.ID, &t.Time, &t.Amt, &t.Flow, &t.Mode, &t.User)
+		err := val.Scan(&t.ID, &t.Time, &t.Amt, &t.Flow, &t.Mode, &t.User)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -165,6 +165,13 @@ func main() {
 		log.Fatalf("Error while creating db: %v\n", err)
 
 	}
+	// if err = insertDb(db, 67, "UPI", "Expense", "dummy1"); err != nil {
+
+	// 	log.Fatalf("Error while inserting : %v\n", err)
+
+	// }
+
+	deleteValDb(db, 16)
 
 	if err = deleteValDb(db, 8); err != nil {
 		log.Fatal(err)
