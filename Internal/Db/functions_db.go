@@ -54,12 +54,13 @@ func InsertDb(db *sql.DB, m Model.Transaction) error {
 	flow := m.Flow
 	mode := m.Mode
 	currTime := time.Now()
+	user := m.User
 	formattedTime := currTime.Format("2006-01-02 15:04:04")
 	m.Time, _ = time.Parse("2006-01-02 15:04:04", formattedTime)
 	fmt.Printf("Current Time is %v\n", formattedTime)
-	fmt.Printf("The values from the api are %v,%v,%v\n", amt, flow, mode)
+	fmt.Printf("The values from the api are %v,%v,%v,%v\n", amt, flow, mode, user)
 	insertCmd := `INSERT INTO transactions(time, amt, flow, mode, user) VALUES (?, ?, ?, ?, ?)`
-	_, err := db.Exec(insertCmd, formattedTime, amt, flow, mode)
+	_, err := db.Exec(insertCmd, formattedTime, amt, flow, mode, user)
 	return err
 }
 
@@ -69,13 +70,11 @@ func GetValDb(db *sql.DB, month int, year int, user string) ([]Model.Transaction
 	// Designed to get values based on the month and year
 	// Designed into months and years to get monthly transactions on a page
 
-	//Creating a map to covert month in english to integer {String(Month) -> Int(month)}
-
 	yr_mth := fmt.Sprintf("%v-%v", year, month)
 	cmd := fmt.Sprintf(`
 		SELECT *
 		FROM transactions
-		WHERE strftime('%%Y-%%m',time) = '%v' AND user = %v`, yr_mth, user)
+		WHERE user = '%v' AND strftime('%%Y-%%m',time) = '%v'`, user, yr_mth)
 
 	val, err := db.Query(cmd)
 	if err != nil {
@@ -91,7 +90,7 @@ func GetValDb(db *sql.DB, month int, year int, user string) ([]Model.Transaction
 
 		var t Model.Transaction
 
-		err := val.Scan(&t.ID, &t.Time, &t.Amt, &t.Flow, &t.Mode)
+		err := val.Scan(&t.ID, &t.Time, &t.Amt, &t.Flow, &t.Mode, &t.User)
 		if err != nil {
 			log.Fatal(err)
 		}

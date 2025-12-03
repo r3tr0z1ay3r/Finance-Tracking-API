@@ -10,4 +10,5 @@ type Transaction struct {
 	Amt  float64   `json:"amt"`
 	Flow string    `json:"flow"`
 	Mode string    `json:"mode"`
+	User string    `json:"user"`
 }
