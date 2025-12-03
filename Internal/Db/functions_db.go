@@ -27,7 +27,7 @@ func CreateDb(db *sql.DB) error {
 
 	createTableUser := `CREATE TABLE IF NOT EXISTS users (
 						id INTEGER PRIMARY KEY AUTOINCREMENT,
-						name TEXT NOT NULL
+						name TEXT NOT NULL,
 						pass VARCHAR 
 	);`
 

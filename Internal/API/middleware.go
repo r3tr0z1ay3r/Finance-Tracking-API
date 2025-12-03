@@ -8,7 +8,7 @@ import (
 )
 
 func AuthMiddleWare(next http.Handler) http.Handler {
-	Config.LoadEnv("config/.env")
+	Config.LoadEnv("Config/.env")
 	api_key := Config.GetEnv("API_KEY")
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 

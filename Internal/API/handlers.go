@@ -47,6 +47,7 @@ func (api *API) Handle_getDB(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	monthStr := vars["month"]
 	yearStr := vars["year"]
+	userStr := vars["user"]
 	month, err := strconv.Atoi(monthStr)
 	if err != nil {
 		http.Error(w, "Invalid Month", http.StatusBadRequest)
@@ -55,7 +56,7 @@ func (api *API) Handle_getDB(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Invalid year", http.StatusBadRequest)
 	}
-	trans, err := Db.GetValDb(api.DB, month, year)
+	trans, err := Db.GetValDb(api.DB, month, year, userStr)
 	if err != nil {
 
 		http.Error(w, err.Error(), http.StatusNotFound)
