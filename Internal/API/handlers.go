@@ -12,16 +12,17 @@ import (
 )
 
 type API struct {
-	DB *sql.DB
+	Trans_DB *sql.DB
+	User_DB  *sql.DB
 }
 
-func NewAPI(dbConn *sql.DB) *API {
+func NewAPI(dbConn_trans *sql.DB, dbConn_user *sql.DB) *API {
 
-	return &API{DB: dbConn}
+	return &API{Trans_DB: dbConn_trans, User_DB: dbConn_user}
 
 }
 
-func (api *API) Handle_insertDB(w http.ResponseWriter, r *http.Request) {
+func (api *API) Handle_insertDBTrans(w http.ResponseWriter, r *http.Request) {
 
 	var trans Model.Transaction
 
@@ -31,7 +32,7 @@ func (api *API) Handle_insertDB(w http.ResponseWriter, r *http.Request) {
 		return
 
 	}
-	err := Db.InsertDbTrans(api.DB, trans)
+	err := Db.InsertDbTrans(api.Trans_DB, trans)
 
 	if err != nil {
 
@@ -42,7 +43,7 @@ func (api *API) Handle_insertDB(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (api *API) Handle_getDB(w http.ResponseWriter, r *http.Request) {
+func (api *API) Handle_getDBTrans(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	monthStr := vars["month"]
@@ -56,7 +57,7 @@ func (api *API) Handle_getDB(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Invalid year", http.StatusBadRequest)
 	}
-	trans, err := Db.GetValDbTrans(api.DB, month, year, userStr)
+	trans, err := Db.GetValDbTrans(api.Trans_DB, month, year, userStr)
 	if err != nil {
 
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -67,7 +68,7 @@ func (api *API) Handle_getDB(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (api *API) Handle_delDB(w http.ResponseWriter, r *http.Request) {
+func (api *API) Handle_delDBTrans(w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
 	idStr := vars["id"]
@@ -78,7 +79,7 @@ func (api *API) Handle_delDB(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	err = Db.DeleteValDbTrans(api.DB, id)
+	err = Db.DeleteValDbTrans(api.Trans_DB, id)
 
 	if err != nil {
 

@@ -10,18 +10,28 @@ import (
 
 func main() {
 
-	dbConn, err := Db.ConnectDb("Internal/Db/test.db")
+	dbConn_trans, err := Db.ConnectDb("Internal/Db/test_Transaction.db")
 	if err != nil {
 		log.Fatalf("Error occured while intializing DB Connection : %v\n", err)
 	}
-	defer dbConn.Close()
+	defer dbConn_trans.Close()
 
-	err = Db.CreateDb(dbConn) //Creates table transaction if it does not exists already
+	err = Db.CreateDb(dbConn_trans) //Creates table transaction if it does not exists already
+	if err != nil {
+		log.Fatalf("Error occured while creating a new table : %v\n", err)
+	}
+	dbConn_User, err := Db.ConnectDb("Internal/Db/test_User.db")
+	if err != nil {
+		log.Fatalf("Error occured while intializing DB Connection : %v\n", err)
+	}
+	defer dbConn_trans.Close()
+
+	err = Db.CreateDb(dbConn_User) //Creates table transaction if it does not exists already
 	if err != nil {
 		log.Fatalf("Error occured while creating a new table : %v\n", err)
 	}
 
-	api := Api.NewAPI(dbConn)
+	api := Api.NewAPI(dbConn_trans, dbConn_User)
 
 	server := &http.Server{
 		Addr:    ":8080",
