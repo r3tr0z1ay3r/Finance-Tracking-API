@@ -16,7 +16,7 @@ func main() {
 	}
 	defer dbConn_trans.Close()
 
-	err = Db.CreateDb(dbConn_trans) //Creates table transaction if it does not exists already
+	err = Db.CreateDbTrans(dbConn_trans) //Creates table transaction if it does not exists already
 	if err != nil {
 		log.Fatalf("Error occured while creating a new table : %v\n", err)
 	}
@@ -26,7 +26,7 @@ func main() {
 	}
 	defer dbConn_trans.Close()
 
-	err = Db.CreateDb(dbConn_User) //Creates table transaction if it does not exists already
+	err = Db.CreateDbUser(dbConn_User) //Creates table transaction if it does not exists already
 	if err != nil {
 		log.Fatalf("Error occured while creating a new table : %v\n", err)
 	}

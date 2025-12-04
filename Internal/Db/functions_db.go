@@ -10,7 +10,7 @@ import (
 	_ "modernc.org/sqlite" // Import SQLite3 driver
 )
 
-func CreateDb(db *sql.DB) error {
+func CreateDbTrans(db *sql.DB) error {
 	// Function to create a table called transactions
 	// Expects Database connection to be provided as input and returns any err if occured
 	// Expected usecase : first run
@@ -25,18 +25,7 @@ func CreateDb(db *sql.DB) error {
 						user TEXT
 	);`
 
-	createTableUser := `CREATE TABLE IF NOT EXISTS users (
-						id INTEGER PRIMARY KEY AUTOINCREMENT,
-						name TEXT NOT NULL,
-						pass VARCHAR 
-	);`
-
 	_, err := db.Exec(createTableTrans)
-	if err != nil {
-		return err
-	}
-
-	_, err = db.Exec(createTableUser)
 	if err != nil {
 		return err
 	}
@@ -45,6 +34,20 @@ func CreateDb(db *sql.DB) error {
 
 }
 
+func CreateDbUser(db *sql.DB) error {
+
+	createTableUser := `CREATE TABLE IF NOT EXISTS users (
+						id INTEGER PRIMARY KEY AUTOINCREMENT,
+						name TEXT NOT NULL,
+						pass VARCHAR 
+	);`
+	_, err := db.Exec(createTableUser)
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
 func InsertDbTrans(db *sql.DB, m Model.Transaction) error {
 
 	// Function to insert value onto the database

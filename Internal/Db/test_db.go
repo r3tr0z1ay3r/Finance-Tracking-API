@@ -150,6 +150,15 @@ func deleteValDb(db *sql.DB, id int) error {
 	return err
 
 }
+
+func VerifyUser(db *sql.DB, user string, pass_hash string) {
+
+	verifyCmd = fmt.Sprintf(`
+							SELECT * 
+							FROM user`)
+
+}
+
 func main() {
 
 	db, err := connectDb()
