@@ -151,11 +151,52 @@ func deleteValDb(db *sql.DB, id int) error {
 
 }
 
-func VerifyUser(db *sql.DB, user string, pass_hash string) {
+func VerifyUser(db *sql.DB, user string, pass_hash string) bool {
 
-	verifyCmd = fmt.Sprintf(`
+	verifyCmd := fmt.Sprintf(`
 							SELECT * 
-							FROM user`)
+							FROM user
+							WHERE user = '%v' AND pass = '%v'`, user, pass_hash)
+	val, err := db.Query(verifyCmd)
+	if err != nil {
+
+		log.Fatalf("Following error occured while authenticating user:\n%v\n", err)
+
+	}
+	if val != nil {
+		return true
+	}
+
+	return false
+
+}
+
+func SignUpUser(db sql.DB, user string, pass string) error {
+
+	verifyCmd := fmt.Sprintf(`
+							SELECT * 
+							FROM user
+							WHERE user = '%v'`, user)
+	val, err := db.Query(verifyCmd)
+	if err != nil {
+
+		log.Fatalf("Following error occured while verifying user duplicate:\n%v\n", err)
+		return err
+
+	}
+	if val != nil {
+
+		log.Fatal("User already exists ")
+		return err
+
+	}
+	insertCmd := `INSERT INTO users(user,pass) VALUES (?, ?)`
+	_, err = db.Exec(insertCmd, user, pass)
+	if err != nil {
+
+		log.Fatalf("The following error occured while inserting the new user: \n %v \n", err)
+
+	}
 
 }
 
