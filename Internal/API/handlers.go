@@ -31,7 +31,7 @@ func (api *API) Handle_insertDB(w http.ResponseWriter, r *http.Request) {
 		return
 
 	}
-	err := Db.InsertDb(api.DB, trans)
+	err := Db.InsertDbTrans(api.DB, trans)
 
 	if err != nil {
 
@@ -56,7 +56,7 @@ func (api *API) Handle_getDB(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "Invalid year", http.StatusBadRequest)
 	}
-	trans, err := Db.GetValDb(api.DB, month, year, userStr)
+	trans, err := Db.GetValDbTrans(api.DB, month, year, userStr)
 	if err != nil {
 
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -78,7 +78,7 @@ func (api *API) Handle_delDB(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	err = Db.DeleteValDb(api.DB, id)
+	err = Db.DeleteValDbTrans(api.DB, id)
 
 	if err != nil {
 

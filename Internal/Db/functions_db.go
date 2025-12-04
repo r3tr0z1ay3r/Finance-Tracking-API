@@ -45,7 +45,7 @@ func CreateDb(db *sql.DB) error {
 
 }
 
-func InsertDb(db *sql.DB, m Model.Transaction) error {
+func InsertDbTrans(db *sql.DB, m Model.Transaction) error {
 
 	// Function to insert value onto the database
 	// Expects database, (Amount , Mode of payment, Expense/Income) -> Should be parsed from API
@@ -64,7 +64,7 @@ func InsertDb(db *sql.DB, m Model.Transaction) error {
 	return err
 }
 
-func GetValDb(db *sql.DB, month int, year int, user string) ([]Model.Transaction, error) {
+func GetValDbTrans(db *sql.DB, month int, year int, user string) ([]Model.Transaction, error) {
 
 	// Function to fetch values from the database
 	// Designed to get values based on the month and year
@@ -124,7 +124,7 @@ func PrintVals(rows *sql.Rows) {
 
 }
 
-func DeleteValDb(db *sql.DB, id int) error {
+func DeleteValDbTrans(db *sql.DB, id int) error {
 
 	// Function to delete values from the database
 	// Expects the database connection (db) and id to delete from
